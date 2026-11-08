@@ -16,6 +16,12 @@ streamlit run app.py
 
 Open the local address Streamlit prints (usually `http://localhost:8501`). Choose **Interactive demo** to inspect the sample opportunity queue, charts, and downloadable CSV.
 
+## Publish a live demo
+
+The repository includes Streamlit Cloud dependency and theme settings. To create a shareable app link, sign in at [Streamlit Community Cloud](https://share.streamlit.io/), connect your GitHub account, choose this repository and the `main` branch, and set the app file to `app.py`. Deploy with the default settings. The interactive demo uses fictional sample data and needs no secrets.
+
+Share the resulting Streamlit app URL with an interviewer alongside the GitHub repository. The repository itself is public, but its GitHub page does not host the interactive dashboard.
+
 ## Use your own exports
 
 In the sidebar, choose **Upload CSV exports** and upload:
