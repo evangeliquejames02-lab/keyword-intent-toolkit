@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "keyword-intent-toolkit"
+version = "0.1.0"
+description = "A practical CLI for cleaning, filtering, and clustering keyword research exports."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["pandas>=2.0", "numpy>=1.24", "openpyxl>=3.1"]
+
+[project.optional-dependencies]
+claude = ["anthropic>=0.40"]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+keyword-tool = "keyword_toolkit.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
