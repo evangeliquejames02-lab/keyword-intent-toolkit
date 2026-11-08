@@ -1,6 +1,6 @@
 # Keyword Intent Toolkit
 
-A small Python CLI that turns a keyword export into clean, deduplicated, intent-labeled files and a volume summary. It supports CSV and Excel input, practical volume and intent filters, exclusion terms, and optional Claude-based classification.
+A Python command-line tool for cleaning, classifying, and filtering keyword research exports. It reads CSV and Excel files and writes classified keywords, filtered results, and an intent summary.
 
 ## What it does
 
@@ -9,7 +9,7 @@ A small Python CLI that turns a keyword export into clean, deduplicated, intent-
 - Labels intent with a fast, explainable rules baseline, or optionally sends batches to Claude.
 - Filters by volume range, intent, and unwanted words; writes classified, filtered, and summary CSV files.
 
-The rule-based confidence values are rough indicators, not measured model accuracy. Claude output is also not guaranteed to be 99% accurate: evaluate it against a manually labeled sample before making performance claims. API use can incur provider charges and sends keyword text to Anthropic.
+Intent rules and confidence values are heuristic estimates. Review labels before using them in a campaign. Optional Claude classification sends keyword text to Anthropic and may incur API charges.
 
 ## Quick start
 
@@ -67,14 +67,3 @@ examples/              small demo input
 tests/                 focused behavior checks
 ```
 
-## CV wording
-
-Keep claims tied to what you have actually built and measured. A defensible starting point:
-
-> Built a Python keyword research pipeline with Pandas and NumPy to clean, deduplicate, classify, and filter search queries by intent and volume; added optional Claude API classification and CSV reporting.
-
-After benchmarking on a labeled dataset, you can add measured accuracy and time savings with the sample size and evaluation method.
-
-## License
-
-Add a license before public reuse (for example, MIT if that matches your intent).
