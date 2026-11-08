@@ -1,69 +1,66 @@
-# Keyword Intent Toolkit
+# Organic Search-to-Revenue Opportunity Engine
 
-A Python command-line tool for cleaning, classifying, and filtering keyword research exports. It reads CSV and Excel files and writes classified keywords, filtered results, and an intent summary.
+A local dashboard that combines Google Search Console query/page exports with Google Analytics 4 landing-page data to help prioritize organic search work. It also includes a reusable keyword cleaning and intent-classification CLI.
 
-## What it does
+## Try the dashboard
 
-- Normalizes keyword text and common input column names; removes blank rows and duplicate keywords.
-- Reads search volume when present and safely treats missing or invalid values as zero.
-- Labels intent with a fast, explainable rules baseline, or optionally sends batches to Claude.
-- Filters by volume range, intent, and unwanted words; writes classified, filtered, and summary CSV files.
-
-Intent rules and confidence values are heuristic estimates. Review labels before using them in a campaign. Optional Claude classification sends keyword text to Anthropic and may incur API charges.
-
-## Quick start
-
-Requires Python 3.10 or later.
+The dashboard opens with fictional sample data, so it can be explored without Google credentials or API keys.
 
 ```bash
 python -m venv .venv
-# macOS/Linux: source .venv/bin/activate
 # Windows PowerShell: .venv\Scripts\Activate.ps1
+# macOS/Linux: source .venv/bin/activate
 python -m pip install -e .
+streamlit run app.py
+```
+
+Open the local address Streamlit prints (usually `http://localhost:8501`). Choose **Interactive demo** to inspect the sample opportunity queue, charts, and downloadable CSV.
+
+## Use your own exports
+
+In the sidebar, choose **Upload CSV exports** and upload:
+
+1. Search Console data exported with **Page** and **Query** dimensions and **Clicks**, **Impressions**, and optionally **Position** metrics.
+2. A GA4 current-period landing-page export with **Sessions**, **Key events**, and/or **Total revenue**. If the export includes a channel dimension, rows are limited to **Organic Search**.
+3. Optionally, a matching GA4 prior-period export to identify revenue declines. Use equal-length date ranges and consistent property, currency, channel, and attribution settings.
+
+Common Search Console and GA4 column names are recognized. Page URLs are joined by path, so confirm that both exports describe the same site and that any subdomain/path differences are accounted for. A missing metric is treated as zero. Exports should be CSV files.
+
+## Opportunity signals
+
+- **Low click-through rate:** pages above the impression threshold with CTR below 70% of the uploaded site's median CTR for the same average-position band. The click gap is an estimate, not a forecast.
+- **Revenue decline:** pages with a revenue decrease of at least 20% against the uploaded prior period.
+- **Query-to-page relevance review:** high-impression queries with little word overlap against a matching page title and URL. This is a review prompt, not a semantic relevance judgment.
+
+The dashboard does not connect directly to Google accounts. Download CSV exports from Search Console and GA4, then upload them locally. Google APIs can be added later with OAuth and the appropriate account permissions.
+
+## Keyword CLI
+
+The command-line tool cleans CSV/Excel keyword lists, applies explainable intent rules, and filters results by volume, intent, or excluded words.
+
+```bash
 keyword-tool examples/sample_keywords.csv --min-volume 100
 ```
 
-Results appear in `output/`:
+Output files are written to `output/`. For optional Claude classification, install `python -m pip install -e ".[claude]"` and set `ANTHROPIC_API_KEY` in your shell. API classification is optional; rule-based classification works offline.
 
-- `classified_keywords.csv` — all cleaned keywords with intent labels.
-- `filtered_keywords.csv` — rows after selected filters.
-- `intent_summary.csv` — counts and volume totals by intent.
-
-Example with custom filters:
-
-```bash
-keyword-tool keywords.csv --min-volume 200 --max-volume 10000 --intent commercial transactional --exclude free jobs
-```
-
-Input needs a column named `keyword`, `query`, `search_term`, or `term`. A volume column is optional; recognized names include `volume`, `search_volume`, and `monthly_searches`.
-
-## Optional Claude classification
-
-Install the extra and set your key in the environment (do not commit secrets):
-
-```bash
-python -m pip install -e ".[claude]"
-# macOS/Linux
-export ANTHROPIC_API_KEY="your-key"
-# Windows PowerShell
-$env:ANTHROPIC_API_KEY = "your-key"
-keyword-tool keywords.csv --llm
-```
-
-The default model is Claude Haiku 4.5. You can set `ANTHROPIC_MODEL` to another model available to your account. Review labels before relying on them: model output can be wrong, and usage may incur provider charges.
-
-## Development checks
+## Development
 
 ```bash
 python -m pip install -e ".[dev]"
 pytest
 ```
 
-## Project structure
+## Project layout
 
 ```text
-src/keyword_toolkit/   pipeline and CLI
-examples/              small demo input
-tests/                 focused behavior checks
+app.py                         Streamlit dashboard entry point
+src/seo_opportunity_engine/    export preparation and opportunity signals
+src/keyword_toolkit/           keyword cleaning, intent rules, and CLI
+sample_data/                   fictional demo exports
+tests/                         automated checks
 ```
 
+## Data and privacy
+
+Demo values are fictional. Uploaded files are read by the local app process and are not sent to a third-party service by this dashboard. Optional Claude classification in the separate CLI sends keyword text to Anthropic when explicitly enabled. Do not commit private exports, API keys, or credentials.
