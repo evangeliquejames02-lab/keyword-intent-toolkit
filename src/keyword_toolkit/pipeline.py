@@ -74,27 +74,37 @@ def classify_keywords(df: pd.DataFrame, use_llm: bool = False) -> pd.DataFrame:
     if not os.getenv("ANTHROPIC_API_KEY"):
         raise RuntimeError("Set ANTHROPIC_API_KEY before using --llm")
     client = Anthropic()
-    model = os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-latest")
+    model = os.getenv("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
     intents: list[str] = []
+    confidences: list[float] = []
+    sources: list[str] = []
     for start in range(0, len(result), 40):
         batch = result["keyword"].iloc[start:start + 40].tolist()
         numbered = "\n".join(f"{i + 1}. {kw}" for i, kw in enumerate(batch))
         response = client.messages.create(
             model=model,
             max_tokens=700,
-            temperature=0,
             system=("Classify each search query by dominant intent: informational, commercial, "
-                    "transactional, navigational, or unknown. Return only one label per line, in order."),
+                    "transactional, navigational, or unknown. Return exactly one label per line, in order."),
             messages=[{"role": "user", "content": numbered}],
         )
-        lines = [line.strip().lower().split(".", 1)[-1].strip() for line in response.content[0].text.splitlines() if line.strip()]
-        if len(lines) != len(batch) or any(label not in INTENTS for label in lines):
-            # Safer fallback than misaligning all following labels.
-            lines = [rule_intent(kw)[0] for kw in batch]
-        intents.extend(lines)
+        raw_lines = response.content[0].text.splitlines()
+        for index, keyword in enumerate(batch):
+            raw = raw_lines[index].strip().lower() if index < len(raw_lines) else ""
+            match = re.fullmatch(r"(?:\d+[.)]\s*)?(informational|commercial|transactional|navigational|unknown)[.! ]*", raw)
+            if match:
+                label = match.group(1)
+                intents.append(label)
+                confidences.append(0.45 if label == "unknown" else 0.80)
+                sources.append("claude")
+            else:
+                label, confidence = rule_intent(keyword)
+                intents.append(label)
+                confidences.append(confidence)
+                sources.append("rules-fallback")
     result["intent"] = intents
-    result["confidence"] = np.where(result["intent"].eq("unknown"), 0.45, 0.80)
-    result["classification_source"] = "claude"
+    result["confidence"] = confidences
+    result["classification_source"] = sources
     return result
 
 

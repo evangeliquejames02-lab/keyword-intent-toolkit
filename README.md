@@ -50,7 +50,14 @@ $env:ANTHROPIC_API_KEY = "your-key"
 keyword-tool keywords.csv --llm
 ```
 
-You can set `ANTHROPIC_MODEL` to a model available to your account. Review labels before using them for consequential decisions. LLM classification costs and rate limits depend on your provider account.
+The default model is Claude Haiku 4.5. You can set `ANTHROPIC_MODEL` to another model available to your account. Review labels before relying on them: model output can be wrong, and usage may incur provider charges.
+
+## Development checks
+
+```bash
+python -m pip install -e ".[dev]"
+pytest
+```
 
 ## Project structure
 
